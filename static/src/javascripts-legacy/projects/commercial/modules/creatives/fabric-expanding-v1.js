@@ -8,8 +8,8 @@ define([
     'common/utils/storage',
     'common/utils/template',
     'common/views/svgs',
-    'text!commercial/views/creatives/fabric-expanding-v1.html',
-    'text!commercial/views/creatives/fabric-expanding-video.html',
+    'raw-loader!commercial/views/creatives/fabric-expanding-v1.html',
+    'raw-loader!commercial/views/creatives/fabric-expanding-video.html',
     'lodash/functions/bindAll',
     'lodash/objects/merge',
     'commercial/modules/creatives/add-tracking-pixel'
@@ -227,7 +227,11 @@ define([
             $('.ad-exp-collapse__slide', $fabricExpandingV1).css('height', this.closedHeight);
 
             if (this.params.trackingPixel) {
-                addTrackingPixel(this.$adSlot, this.params.trackingPixel + this.params.cacheBuster);
+                addTrackingPixel(this.params.trackingPixel + this.params.cacheBuster);
+            }
+
+            if (this.params.researchPixel) {
+                addTrackingPixel(this.params.researchPixel + this.params.cacheBuster);
             }
 
             $fabricExpandingV1.appendTo(this.$adSlot);

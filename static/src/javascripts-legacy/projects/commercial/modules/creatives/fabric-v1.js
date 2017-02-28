@@ -6,9 +6,9 @@ define([
     'common/utils/template',
     'common/utils/mediator',
     'commercial/modules/creatives/add-tracking-pixel',
-    'text!commercial/views/creatives/fabric-v1.html',
-    'text!commercial/views/creatives/iframe-video.html',
-    'text!commercial/views/creatives/scrollbg.html',
+    'raw-loader!commercial/views/creatives/fabric-v1.html',
+    'raw-loader!commercial/views/creatives/iframe-video.html',
+    'raw-loader!commercial/views/creatives/scrollbg.html',
     'lodash/objects/merge'
 ], function (
     $,
@@ -75,7 +75,11 @@ define([
         }
 
         if (this.params.trackingPixel) {
-            addTrackingPixel(this.$adSlot, this.params.trackingPixel + this.params.cacheBuster);
+            addTrackingPixel(this.params.trackingPixel + this.params.cacheBuster);
+        }
+
+        if (this.params.researchPixel) {
+            addTrackingPixel(this.params.researchPixel + this.params.cacheBuster);
         }
 
         return fastdom.write(function () {

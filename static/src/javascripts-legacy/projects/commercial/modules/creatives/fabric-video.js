@@ -6,7 +6,7 @@ define([
     'common/utils/detect',
     'common/utils/template',
     'commercial/modules/creatives/add-tracking-pixel',
-    'text!commercial/views/creatives/fabric-video.html'
+    'raw-loader!commercial/views/creatives/fabric-video.html'
 ], function (qwery, bonzo, addEventListener, fastdom, detect, template, addTrackingPixel, fabricVideoStr) {
     var fabricVideoTpl;
 
@@ -39,7 +39,10 @@ define([
         function create() {
             return fastdom.write(function () {
                 if (params.Trackingpixel) {
-                    addTrackingPixel(bonzo(adSlot), params.Trackingpixel + params.cacheBuster);
+                    addTrackingPixel(params.Trackingpixel + params.cacheBuster);
+                }
+                if (params.Researchpixel) {
+                    addTrackingPixel(params.Researchpixel + params.cacheBuster)
                 }
                 adSlot.insertAdjacentHTML('beforeend', fabricVideoTpl({ data: params }));
                 adSlot.classList.add('ad-slot--fabric');

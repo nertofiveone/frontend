@@ -5,8 +5,8 @@ define([
     'common/utils/assign',
     'common/utils/template',
     'common/views/svgs',
-    'text!commercial/views/creatives/fabric-expandable-video-v2.html',
-    'text!commercial/views/creatives/fabric-expandable-video-v2-cta.html',
+    'raw-loader!commercial/views/creatives/fabric-expandable-video-v2.html',
+    'raw-loader!commercial/views/creatives/fabric-expandable-video-v2-cta.html',
     'commercial/modules/creatives/add-tracking-pixel'
 ], function (
     bean,
@@ -61,7 +61,10 @@ define([
                 $ad.css('height', closedHeight);
                 $('.ad-exp-collapse__slide', $fabricExpandableVideo).css('height', closedHeight);
                 if (params.trackingPixel) {
-                    addTrackingPixel($adSlot, params.trackingPixel + params.cacheBuster);
+                    addTrackingPixel(params.trackingPixel + params.cacheBuster);
+                }
+                if (params.researchPixel) {
+                    addTrackingPixel(params.researchPixel + params.cacheBuster);
                 }
                 $fabricExpandableVideo.appendTo($adSlot);
                 $adSlot.addClass('ad-slot--fabric');

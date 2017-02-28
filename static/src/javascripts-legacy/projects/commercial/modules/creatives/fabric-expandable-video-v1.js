@@ -8,7 +8,7 @@ define([
     'common/utils/storage',
     'common/utils/template',
     'common/views/svgs',
-    'text!commercial/views/creatives/fabric-expandable-video-v1.html',
+    'raw-loader!commercial/views/creatives/fabric-expandable-video-v1.html',
     'lodash/objects/merge',
     'commercial/modules/creatives/add-tracking-pixel'
 ], function (
@@ -92,7 +92,10 @@ define([
             $ad.css('height', this.closedHeight);
             $('.ad-exp-collapse__slide', $fabricExpandableVideo).css('height', this.closedHeight);
             if (this.params.trackingPixel) {
-                addTrackingPixel(this.$adSlot, this.params.trackingPixel + this.params.cacheBuster);
+                addTrackingPixel(this.params.trackingPixel + this.params.cacheBuster);
+            }
+            if (this.params.researchPixel) {
+                addTrackingPixel(this.params.researchPixel + this.params.cacheBuster);
             }
             $fabricExpandableVideo.appendTo(this.$adSlot);
             this.$adSlot.addClass('ad-slot--fabric');
