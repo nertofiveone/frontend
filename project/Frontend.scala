@@ -54,7 +54,9 @@ object Frontend extends Build with Prototypes {
       targetingClient,
       scanamo,
       scalaUri,
-      commercialShared
+      commercialShared,
+      capiScalaModels,
+      capiScalaModelsJson
     )
   ).settings(
       mappings in TestAssets ~= filterAssets
@@ -75,7 +77,10 @@ object Frontend extends Build with Prototypes {
     libraryDependencies += scalaCheck
   )
 
-  val article = application("article").dependsOn(commonWithTests).aggregate(common)
+  val article = application("article").dependsOn(commonWithTests).aggregate(common).settings(
+    libraryDependencies ++= Seq(capiScalaModels, capiScalaModelsJson)
+  )
+
 
   val applications = application("applications")
     .dependsOn(commonWithTests)

@@ -3,10 +3,12 @@ package controllers
 import com.softwaremill.macwire._
 import contentapi.ContentApiClient
 import model.ApplicationContext
+import play.api.libs.ws.WSClient
 import services.{NewspaperBookSectionTagAgent, NewspaperBookTagAgent}
 
 trait ArticleControllers {
   def contentApiClient: ContentApiClient
+  def wsClient: WSClient
   implicit def appContext: ApplicationContext
   lazy val bookAgent: NewspaperBookTagAgent = wire[NewspaperBookTagAgent]
   lazy val bookSectionAgent: NewspaperBookSectionTagAgent = wire[NewspaperBookSectionTagAgent]

@@ -1,12 +1,13 @@
 package controllers.admin
 
 import common.{ExecutionContexts, Logging}
-import play.api.libs.ws.WSClient
+import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc.Controller
 import play.api.mvc.Action
 import tools._
 import model.{ApplicationContext, NoCache}
 import conf.Configuration
+
 import scala.concurrent.Future
 
 class MetricsController(wsClient: WSClient)(implicit context: ApplicationContext) extends Controller with Logging with ExecutionContexts {
@@ -56,7 +57,7 @@ class MetricsController(wsClient: WSClient)(implicit context: ApplicationContext
   }
 
   def renderAfg() = Action.async { implicit request =>
-    wsClient.url("https://s3-eu-west-1.amazonaws.com/aws-frontend-metrics/frequency/index.html").get() map { response =>
+    wsClient.url("https://s3-eu-west-1.amazonaws.com/aws-frontend-metrics/frequency/index.html").get() map { (response: WSResponse) =>
       NoCache(Ok(views.html.afg(response.body)))
     }
   }

@@ -13,8 +13,12 @@ import model.liveblog.BodyBlock
 import org.joda.time.DateTime
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{Json, _}
+import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc._
 import views.support._
+
+import com.gu.contentapi.json.CirceDecoders._
+import com.gu.contentapi.json.CirceEncoders._
 
 import scala.concurrent.Future
 import scala.util.parsing.combinator.RegexParsers
@@ -30,7 +34,7 @@ case class ArticlePage(article: Article, related: RelatedContent) extends PageWi
 case class LiveBlogPage(article: Article, currentPage: LiveBlogCurrentPage, related: RelatedContent) extends PageWithStoryPackage
 case class MinutePage(article: Article, related: RelatedContent) extends PageWithStoryPackage
 
-class ArticleController(contentApiClient: ContentApiClient)(implicit context: ApplicationContext) extends Controller with RendersItemResponse with Logging with ExecutionContexts {
+class ArticleController(contentApiClient: ContentApiClient, wsClient: WSClient)(implicit context: ApplicationContext) extends Controller with RendersItemResponse with Logging with ExecutionContexts {
 
 
   private def isSupported(c: ApiContent) = c.isArticle || c.isLiveBlog || c.isSudoku
@@ -185,6 +189,33 @@ class ArticleController(contentApiClient: ContentApiClient)(implicit context: Ap
         render(path, _)
       }
     }
+  }
+
+
+
+  def renderArticlePreviousVersion(path: String, version: String) = {
+
+
+    Action.async { implicit request =>
+      wsClient.url(s"https://s3-eu-west-1.amazonaws.com/our-bucket/$path/$version.json").get() map { response: WSResponse =>
+
+        val contentOpt = io.circe.parser.parse(response.body).fold(e => throw e, identity).as[ItemResponse]
+
+
+        contentOpt.right.toOption map responseToModelOrResult(None) map {
+          case Left(model) => render(model)
+          case Right(other) => RenderOtherStatus(other)
+        }
+
+      }
+    }
+  }
+
+  def someThing[T](implicit request: RequestHeader,
+                              context: ApplicationContext,
+                              ): PartialFunction[Throwable, Either[T, Result]] = {
+
+    convertApiExceptionsWithoutEither.andThen(Right(_))
   }
 
   // range: None means the url didn't include /live/, Some(...) means it did.  Canonical just means no url parameter
