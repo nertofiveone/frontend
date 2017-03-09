@@ -16,9 +16,9 @@ import play.api.libs.json.{Json, _}
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc._
 import views.support._
-
-import com.gu.contentapi.json.CirceDecoders._
 import com.gu.contentapi.json.CirceEncoders._
+import com.gu.contentapi.json.CirceDecoders._
+import com.gu.contentapi.json.utils.JsonHelpers
 
 import scala.concurrent.Future
 import scala.util.parsing.combinator.RegexParsers
@@ -197,25 +197,14 @@ class ArticleController(contentApiClient: ContentApiClient, wsClient: WSClient)(
 
 
     Action.async { implicit request =>
-      wsClient.url(s"https://s3-eu-west-1.amazonaws.com/our-bucket/$path/$version.json").get() map { response: WSResponse =>
+      wsClient.url(s"https://s3-eu-west-1.amazonaws.com/hackday-revisions/$path/$version.json").get() map { response: WSResponse =>
 
-        val contentOpt = io.circe.parser.parse(response.body).fold(e => throw e, identity).as[ItemResponse]
+        val contentOpt:ItemResponse = JsonHelpers.parseJson[ItemResponse](response.body)
 
-
-        contentOpt.right.toOption map responseToModelOrResult(None) map {
-          case Left(model) => render(model)
-          case Right(other) => RenderOtherStatus(other)
-        }
-
+        val pageWithStoryPackage: PageWithStoryPackage = responseToModelOrResult(None)(contentOpt).left
+        render(path, pageWithStoryPackage)
       }
     }
-  }
-
-  def someThing[T](implicit request: RequestHeader,
-                              context: ApplicationContext,
-                              ): PartialFunction[Throwable, Either[T, Result]] = {
-
-    convertApiExceptionsWithoutEither.andThen(Right(_))
   }
 
   // range: None means the url didn't include /live/, Some(...) means it did.  Canonical just means no url parameter
@@ -254,6 +243,7 @@ class ArticleController(contentApiClient: ContentApiClient, wsClient: WSClient)(
   def responseToModelOrResult(range: Option[BlockRange])(response: ItemResponse)(implicit request: RequestHeader): Either[PageWithStoryPackage, Result] = {
     val supportedContent = response.content.filter(isSupported).map(Content(_))
     val supportedContentResult = ModelOrResult(supportedContent, response)
+    println(supportedContentResult)
     val content: Either[PageWithStoryPackage, Result] = supportedContentResult.left.flatMap {
       case minute: Article if minute.isTheMinute =>
         Left(MinutePage(minute, StoryPackages(minute, response)))
