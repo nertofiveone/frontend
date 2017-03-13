@@ -35,6 +35,8 @@ class DevParametersHttpRequestHandler(
     "CMP", // External campaign parameter for Omniture js
     "INTCMP", // Internal campaign parameter for Omniture js
 
+    "previousVersion", // go back to old article version
+
     "oauth_token", // for generating Magento tokens for bookshop service
     "oauth_verifier", // for generating Magento tokens for bookshop service
     "query", // testing the weather locations endpoint

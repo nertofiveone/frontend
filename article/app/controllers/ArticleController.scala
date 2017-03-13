@@ -19,6 +19,7 @@ import views.support._
 import com.gu.contentapi.json.CirceEncoders._
 import com.gu.contentapi.json.CirceDecoders._
 import com.gu.contentapi.json.utils.JsonHelpers
+import io.circe.ParsingFailure
 
 import scala.concurrent.Future
 import scala.util.parsing.combinator.RegexParsers
@@ -183,26 +184,31 @@ class ArticleController(contentApiClient: ContentApiClient, wsClient: WSClient)(
     }
   }
 
-  def renderArticle(path: String) = {
-    Action.async { implicit request =>
-      mapModel(path, range = if (request.isEmail) Some(ArticleBlocks) else None) {
-        render(path, _)
+  def renderArticle(path: String, previousVersion: Option[String] = None) = {
+    if(previousVersion.isDefined) {
+
+      Action.async { implicit request =>
+        val s: String = s"https://s3-eu-west-1.amazonaws.com/hackday-revisions/$path/${previousVersion.get}.json"
+        println(s)
+        wsClient.url(s).get() map { response: WSResponse =>
+          val contentOpt:ItemResponse = JsonHelpers.parseJson[ItemResponse](response.body)
+
+          val result: Either[PageWithStoryPackage, Result] = responseToModelOrResult(None)(contentOpt)
+
+          val pageWithStoryPackage: PageWithStoryPackage = result.left.toOption.get
+
+          render(path, pageWithStoryPackage)
+        }
       }
+    } else {
+        renderArticleFromApi(path)
     }
   }
 
-
-
-  def renderArticlePreviousVersion(path: String, version: String) = {
-
-
+  def renderArticleFromApi(path:String) = {
     Action.async { implicit request =>
-      wsClient.url(s"https://s3-eu-west-1.amazonaws.com/hackday-revisions/$path/$version.json").get() map { response: WSResponse =>
-
-        val contentOpt:ItemResponse = JsonHelpers.parseJson[ItemResponse](response.body)
-
-        val pageWithStoryPackage: PageWithStoryPackage = responseToModelOrResult(None)(contentOpt).left
-        render(path, pageWithStoryPackage)
+      mapModel(path, range = if (request.isEmail) Some(ArticleBlocks) else None) {
+        render(path, _)
       }
     }
   }
@@ -243,7 +249,6 @@ class ArticleController(contentApiClient: ContentApiClient, wsClient: WSClient)(
   def responseToModelOrResult(range: Option[BlockRange])(response: ItemResponse)(implicit request: RequestHeader): Either[PageWithStoryPackage, Result] = {
     val supportedContent = response.content.filter(isSupported).map(Content(_))
     val supportedContentResult = ModelOrResult(supportedContent, response)
-    println(supportedContentResult)
     val content: Either[PageWithStoryPackage, Result] = supportedContentResult.left.flatMap {
       case minute: Article if minute.isTheMinute =>
         Left(MinutePage(minute, StoryPackages(minute, response)))
