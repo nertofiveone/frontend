@@ -1,6 +1,5 @@
 {
   "sndrs": [
-    "lib/add-event-listener.js",
     "lib/ajax.js",
     "lib/atob.js",
     "lib/capture-perf-timings.js",
