@@ -31,9 +31,7 @@ define([
             ['ENDED', 'PLAYING', 'PAUSED', 'BUFFERING', 'CUED'].forEach(function (status) {
                 el.classList.toggle('youtube__video-' + status.toLocaleLowerCase(), event.data === window.YT.PlayerState[status]);
             });
-            bean.on(document.querySelector('.js-video-playlist-next'), 'click', function() {
-            event.target.pauseVideo();
-            });
+            addCarouselEvents(event, el);
             addVideoStartedClass(el);
         });
 
@@ -62,8 +60,30 @@ define([
         el.classList.add('youtube__video-started');
     }
 
+    function addCarouselEvents(event, el) {
+
+        function pauseVideo() {
+            el.classList.remove('youtube__video-started');
+            event.target.pauseVideo();
+        }
+
+
+        bean.on(document.querySelector('.js-video-playlist-next'), 'click', function() {
+            pauseVideo();
+        });
+        bean.on(document.querySelector('.js-video-playlist-prev'), 'click', function() {
+            pauseVideo();
+        });
+    }
+
     function init(el, handlers, videoId) {
         loadYoutubeJs();
+
+        bean.on(document.querySelector('.js-video-playlist-next'), 'click', function() {
+            var sibling = el.nextSibling;
+            sibling.classList.add('vjs-big-play-button');
+        });
+
 
         return promise.then(function () {
             function onPlayerStateChange(event) {

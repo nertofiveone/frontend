@@ -18,7 +18,12 @@ define([
 
     var reducers = {
         NEXT: function next(previousState) {
+
             var position = previousState.position >= previousState.length ? previousState.position : previousState.position + 1;
+            var nextItem = document.querySelector('.js-video-playlist-item-'+ position);
+            var playButtonDiv = nextItem.querySelector('.youtube-media-atom__overlay');
+            playButtonDiv.classList.add('vjs-big-play-button');
+
             return assign({}, previousState, getPositionState(position, previousState.length));
         },
 
@@ -29,6 +34,10 @@ define([
 
         INIT: function init(previousState) {
             fastdom.read(function() {
+                var firstItem = document.querySelector('.js-video-playlist-item-0');
+                var playButtonDiv = firstItem.querySelector('.youtube-media-atom__overlay');
+                playButtonDiv.classList.add('vjs-big-play-button');
+
                 // Lazy load images on scroll for mobile
                 $('.js-video-playlist-image', previousState.container).each(function(el) {
                     var elementInview = ElementInview(el , $('.js-video-playlist-inner', previousState.container).get(0), {
