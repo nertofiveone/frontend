@@ -214,8 +214,6 @@ final case class MetaData (
     DfpAgent.omitMPUsFromContainers(id, edition)
   } else false
 
-  val isSurging: Seq[Int] = SurgingContentAgent.getSurgingLevelsFor(id)
-
   val requiresMembershipAccess: Boolean = membershipAccess.nonEmpty
 
   val hasSlimHeader: Boolean =
