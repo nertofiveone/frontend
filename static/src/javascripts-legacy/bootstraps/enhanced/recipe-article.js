@@ -121,8 +121,8 @@ function init() {
         if (focalRecipeInt < 0) { nextButton.removeClass('top'); }
 
         if(detect.isBreakpoint({ min: 'desktop' })) {
-          new Sticky(stickyGutter[0]).init();
-          new Sticky(stickyImages[0]).init();
+          new Sticky(stickyGutter[0], {}).init();
+          new Sticky(stickyImages[0], {}).init();
         }
 
         readMoreWrapper.html(readMoreNoJS.html());
