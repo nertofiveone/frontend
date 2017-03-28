@@ -2,12 +2,14 @@ define([
     'fastdom',
     'Promise',
     'lib/$',
-    'lib/load-script'
+    'lib/load-script',
+    'bean'
 ], function (
     fastdom,
     Promise,
     $,
-    loadScript
+    loadScript,
+    bean
 ) {
     var scriptSrc = 'https://www.youtube.com/iframe_api';
     var promise = new Promise(function(resolve) {
@@ -28,6 +30,9 @@ define([
         fastdom.write(function () {
             ['ENDED', 'PLAYING', 'PAUSED', 'BUFFERING', 'CUED'].forEach(function (status) {
                 el.classList.toggle('youtube__video-' + status.toLocaleLowerCase(), event.data === window.YT.PlayerState[status]);
+            });
+            bean.on(document.querySelector('.js-video-playlist-next'), 'click', function() {
+            event.target.pauseVideo();
             });
             addVideoStartedClass(el);
         });
